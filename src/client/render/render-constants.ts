@@ -7,7 +7,7 @@ const cardStroke = 'black';
 const cardWidth = 100;
 const cardHeight = 140;
 const cardSpacing = 30;
-const cardIndent = 30;
+const cardIndent = 90;
 
 const opYPos = 30;
 const myYPos = cH - cardHeight - opYPos;

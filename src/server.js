@@ -7,9 +7,10 @@ const http = require('http').Server(server);
 const io = require('socket.io')(http);
 
 const NewGame = require('./server/new-game');
+const UpdateState = require('./server/update-state');
 const LocaliseState = require('./server/localise-state');
 
-const FPS = 2;
+const FPS = 10;
 
 const DIST = join(process.cwd(), 'dist');
 
@@ -47,17 +48,33 @@ io.on('connection', (socket) => {
       game.players.push(socket.id);
       io.sockets.connected[game.players[0]].emit('opponent_found');
       game.loop = setInterval(() => {
+
+        game.state = UpdateState(game.state, game.inputs, FPS);
+        game.inputs = { p0: {}, p1: {} };
+
         game.players.forEach((ps, i) => {
           if (io.sockets.connected[ps]) {
             io.sockets.connected[ps].emit('state', LocaliseState(game.state, i));
           }
         });
+
+        console.log('.');
+
       }, (1000 / FPS));
     }
     mySocket.emit('game_found', {
       players: game.players.length,
+      game_id: game.id,
       socket_id: socket.id,
     });
+  });
+
+  socket.on('input', (input) => {
+    if (input.data.type !== null) {
+      let game = games.find(g => g.id === input.game);
+      let player = 'p' + game.players.indexOf(input.player);
+      game.inputs[player] = input.data;
+    }
   });
 
 });

@@ -13,5 +13,10 @@ module.exports = function(state, p) {
             me: state.health['p' + p],
             op: state.health['p' + (1 - p)],
         },
+        selected: {
+            me: state.selected['p' + p],
+            op: state.selected['p' + (1 - p)] !== null,
+        },
+        phase: state.phase.id,
     }
 };

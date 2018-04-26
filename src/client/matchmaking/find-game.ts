@@ -1,5 +1,6 @@
 export interface GameFoundResponse {
   players: number;
+  game_id: number;
   socket_id: string;
 };
 
