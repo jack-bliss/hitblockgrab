@@ -7,39 +7,57 @@ const http = require('http').Server(server);
 const io = require('socket.io')(http);
 
 const NewGame = require('./server/new-game');
+const LocaliseState = require('./server/localise-state');
+
+const FPS = 2;
 
 const DIST = join(process.cwd(), 'dist');
 
 let games = [];
 
 io.on('connection', (socket) => {
-  console.log('connected');
   const mySocket = io.sockets.connected[socket.id];
 
-  socket.on('handshake', (info) => {
-    console.log('received handshake', info);
-    mySocket.emit('response');
-  });
-
   socket.on('disconnect', (reason) => {
-    games = games.filter((game) => {
-      return game.players.indexOf(socket.id) === -1;
-    });
+    let g;
+    let opp;
+    for (let i = 0; i < games.length; i++) {
+      g = games[i];
+      if (g.players.indexOf(mySocket) > -1) {
+        clearInterval(g.loop);
+        opp = g.players.filter(sid => sid !== socket.id);
+        io.sockets.connected[opp].emit('opponent_left');
+        games.splice(i, 1);
+        i--;
+      }
+    }
   });
 
-  socket.on('find_game', (info) => {
-    console.log('player seeking game', info);
-      let game = games.find((g) => {
+  socket.on('find_game', () => {
+    console.log('player seeking game');
+    let game = games.find((g) => {
       return g.players.length < 2;
     });
     if (!game) {
+      console.log('creating new pending game');
       game = NewGame(socket.id);
       games.push(game);
     } else {
+      console.log('starting game');
       game.players.push(socket.id);
-      io.sockets.connected[game.players[0]].emit('opponent_found', game);
+      io.sockets.connected[game.players[0]].emit('opponent_found');
+      game.loop = setInterval(() => {
+        game.players.forEach((ps, i) => {
+          if (io.sockets.connected[ps]) {
+            io.sockets.connected[ps].emit('state', LocaliseState(game.state, i));
+          }
+        });
+      }, (1000 / FPS));
     }
-    mySocket.emit('game_found', game);
+    mySocket.emit('game_found', {
+      players: game.players.length,
+      socket_id: socket.id,
+    });
   });
 
 });

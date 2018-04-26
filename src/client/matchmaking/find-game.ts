@@ -1,10 +1,13 @@
-import { Game } from '../interfaces/game.interface';
+export interface GameFoundResponse {
+  players: number;
+  socket_id: string;
+};
 
-export function findGame(socket: any): Promise<Game> {
+export function findGame(socket: any): Promise<GameFoundResponse> {
   socket.emit('find_game', { });
-  return new Promise((resolve: (n: Game) => void, reject: (n: any) => void) => {
-    socket.on('game_found', (game: Game) => {
-      resolve(game);
+  return new Promise((resolve: (n: GameFoundResponse) => void, reject: (n: any) => void) => {
+    socket.on('game_found', (players: GameFoundResponse) => {
+      resolve(players);
     });
   });
 }

@@ -1,10 +1,9 @@
-import { Game } from '../interfaces/game.interface';
 
-export function awaitOpponent(socket: any): Promise<Game> {
+export function awaitOpponent(socket: any): Promise<boolean> {
   
-  return new Promise((resolve: (n: Game) => void, reject: (n: any) => void) => {
-    socket.on('opponent_found', (game: Game) => {
-      resolve(game);
+  return new Promise((resolve: (state: boolean) => void, reject: (r: any) => void) => {
+    socket.on('opponent_found', () => {
+      resolve(true);
     });
   });
 
