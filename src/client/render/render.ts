@@ -66,6 +66,34 @@ export function renderState(state: LocalState, { socket, game_id, socket_id }: R
     canvas.appendChild(phase);
   }
   
+  if (state.health.me !== prev.health.me) {
+    const prevMyHealth = document.getElementById('my-health');
+    if (prevMyHealth) {
+      prevMyHealth.parentNode.removeChild(prevMyHealth);
+    }
+  
+    const myHealth = createSVGElement('text');
+    myHealth.textContent = state.health.me + '';
+    myHealth.setAttribute('x', '10');
+    myHealth.setAttribute('y', (RenderConstants.cH - 20) + '');
+    myHealth.setAttribute('id', 'my-health');
+    canvas.appendChild(myHealth);
+  }
+  
+  if (state.health.op !== prev.health.op) {
+    const prevOpHealth = document.getElementById('op-health');
+    if (prevOpHealth) {
+      prevOpHealth.parentNode.removeChild(prevOpHealth);
+    }
+    
+    const opHealth = createSVGElement('text');
+    opHealth.textContent = state.health.op + '';
+    opHealth.setAttribute('x', '10');
+    opHealth.setAttribute('y', 20 + '');
+    opHealth.setAttribute('id', 'op-health');
+    canvas.appendChild(opHealth);
+  }
+  
   if (prev.opponentCards !== state.opponentCards) {
     
     for (let i = 0; i < prev.opponentCards; i++) {

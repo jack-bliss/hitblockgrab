@@ -22,7 +22,8 @@ module.exports = function(socket_id) {
             phase: {
                 id: 'start',
                 counter: 0,
-            }
+            },
+            winner: null,
         },
         id: (Date.now() * 10000) + Math.floor(Math.random() * 10000),
         inputs: {

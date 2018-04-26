@@ -18,5 +18,14 @@ module.exports = function(state, p) {
             op: state.selected['p' + (1 - p)] !== null,
         },
         phase: state.phase.id,
+        winner: (() => {
+            if (state.winner === 'p' + p) {
+                return 'me';
+            } else if (state.winner === 'p' + (1 - p)) {
+                return 'op';
+            } else {
+                return state.winner;
+            }
+        })(),
     }
 };

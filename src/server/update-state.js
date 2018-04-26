@@ -1,4 +1,5 @@
 const RuleConstants = require('./rule-constants');
+const Cards = require('../cards/card-list');
 
 const P = ['p0', 'p1'];
 
@@ -32,6 +33,19 @@ module.exports = function(prev, input, fps) {
     } else if (next.phase.id === 'compare') {
         if (next.phase.counter === 1) {
             next.played.push(next.selected);
+
+            // figure out who won right here
+
+            const p0Card = Cards[next.selected.p0];
+            const p1Card = Cards[next.selected.p1];
+
+            const thisRound = {
+                p0: p0Card,
+                p1: p1Card,
+            };
+
+            // some kind of iterative thing - dont want to have to duplicate for both sides
+
         }
         if (next.phase.counter === (RuleConstants.COMPARE_TIME * fps) - 1) {
             P.forEach(p => {
