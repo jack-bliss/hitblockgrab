@@ -1,31 +1,46 @@
-module.exports = function(state, p) {
+module.exports = function(state, n) {
+    let m = 'p' + n;
+    let o = 'p' + (1 - p);
+
     return {
         played: state.played.map(played => {
             return {
-                me: played['p' + p],
-                op: played['p' + (1 - p)],
+                me: played[m],
+                op: played[o],
             }
         }),
-        opponentCards: state.cardsInHand['p' + (1 - p)].length,
-        myHand: state.cardsInHand['p' + p],
-        advantage: state.advantage,
+        opponentCards: state.cardsInHand[o].length,
+        myHand: state.cardsInHand[m],
+        advantage: (() => {
+            if (state.advantage === m) {
+                return 'me';
+            } else if (state.advantage === o) {
+                return 'op';
+            } else {
+                return state.advantage;
+            }
+        })(),
         health: {
-            me: state.health['p' + p],
-            op: state.health['p' + (1 - p)],
+            me: state.health[m],
+            op: state.health[o],
         },
         selected: {
-            me: state.selected['p' + p],
-            op: state.selected['p' + (1 - p)] !== null,
+            me: state.selected[m],
+            op: state.selected[o] !== null,
         },
         phase: state.phase.id,
         winner: (() => {
-            if (state.winner === 'p' + p) {
+            if (state.winner === m) {
                 return 'me';
-            } else if (state.winner === 'p' + (1 - p)) {
+            } else if (state.winner === o) {
                 return 'op';
             } else {
                 return state.winner;
             }
         })(),
+        rounds: {
+            me: state.rounds[m],
+            op: state.rounds[o],
+        }
     }
 };
