@@ -39,22 +39,26 @@ module.exports = function (prev, input, fps) {
 
       const Result = GetResult(p0Card, p1Card);
 
-      next.advantage = Result.advantage;
       next.winner = Result.winner;
-
       P.forEach(p => {
         next.health[p] -= Result.damage[p];
       });
+      next.advantage = Result.advantage;
 
     }
+
     if (next.phase.counter === (RuleConstants.COMPARE_TIME * fps) - 1) {
       P.forEach(p => {
-        if (next.selected[p] !== null) {
-          next.cardsInHand[p].push(next.selected[p]);
+        // IMPLEMENT ADVANTAGE HERE:
+        if (next.advantage === p) {
+          next.cardsInHand[p] = [4, 2, 5];
+        } else {
+          next.cardsInHand[p] = [1, 2, 3];
         }
       });
       next.selected = { p0: null, p1: null };
     }
+
     if (next.phase.counter >= RuleConstants.COMPARE_TIME * fps) {
       next.phase.counter = 0;
       P.forEach(p => {
