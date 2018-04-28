@@ -1,5 +1,5 @@
 const cW = 600;
-const cH = 600;
+const cH = 500;
 
 const cardBackFill = 'rgb(150, 150, 250)';
 const cardStroke = 'black';
@@ -7,7 +7,7 @@ const cardStroke = 'black';
 const cardWidth = 100;
 const cardHeight = 140;
 const cardSpacing = 30;
-const cardIndent = 90;
+const cardIndent = 135;
 
 const opYPos = 30;
 const myYPos = cH - cardHeight - opYPos;

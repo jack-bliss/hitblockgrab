@@ -1,0 +1,17 @@
+body {
+    display: grid;
+    grid-template-columns: 1fr 600px 1fr;
+    grid-template-rows: 10px 40px 10px 600px;
+    grid-template-areas:
+        ". . ."
+        "header header header"
+        ". . ."
+        ". canvas .";
+}
+
+h1 {
+    grid-area: header;
+}
+#canvas {
+    grid-area: canvas;
+}

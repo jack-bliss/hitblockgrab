@@ -5,7 +5,9 @@ import { RenderConstants } from './render-constants';
 
 import { drawCardFace } from './draw-card-face';
 import { drawCardBack } from './draw-card-back';
-import { createSVGElement } from './create-svg-element';
+import { removeIfExists } from './remove-if-exists';
+import { writeText } from './write-text';
+import { drawMyHand } from './draw-my-hand';
 
 const canvas = document.getElementById('canvas');
 
@@ -15,10 +17,8 @@ let nextInput: Input = {
 };
 
 canvas.addEventListener('click', (e: MouseEvent) => {
-  console.log(e);
   let p: HTMLElement = e.target as HTMLElement;
   while (p) {
-    console.log(p);
     if (p.hasAttribute('data-card')) {
       nextInput = {
         type: 'my_card_clicked',
@@ -31,7 +31,6 @@ canvas.addEventListener('click', (e: MouseEvent) => {
       p = null;
     }
   }
-  console.log(nextInput);
 });
 
 interface RenderDetails {
@@ -48,59 +47,41 @@ let prev: LocalState = {
   health: { me: 0, op: 0 },
   selected: { me: null, op: false },
   phase: null,
+  winner: null,
+  rounds: { me: -1, op: -1 },
+  timer: { target: -1, current: -1 },
 };
 
 export function renderState(state: LocalState, { socket, game_id, socket_id }: RenderDetails) {
-  
+
+  removeIfExists('timer');
+  canvas.appendChild(
+    writeText(
+      state.timer.current.toFixed(2),
+      0, (RenderConstants.cH / 2) + 20, 'timer'
+    )
+  );
+
   if (state.phase !== prev.phase) {
-    const prevPhase = document.getElementById('phase-name');
-    if (prevPhase) {
-      prevPhase.parentNode.removeChild(prevPhase);
-    }
-    
-    const phase = createSVGElement('text');
-    phase.textContent = state.phase;
-    phase.setAttribute('x', '0');
-    phase.setAttribute('y', (RenderConstants.cH / 2) + '');
-    phase.setAttribute('id', 'phase-name');
-    canvas.appendChild(phase);
+    removeIfExists('phase-name');
+    canvas.appendChild(writeText(state.phase, 0, RenderConstants.cH / 2, 'phase-name'));
   }
   
   if (state.health.me !== prev.health.me) {
-    const prevMyHealth = document.getElementById('my-health');
-    if (prevMyHealth) {
-      prevMyHealth.parentNode.removeChild(prevMyHealth);
-    }
-  
-    const myHealth = createSVGElement('text');
-    myHealth.textContent = state.health.me + '';
-    myHealth.setAttribute('x', '10');
-    myHealth.setAttribute('y', (RenderConstants.cH - 20) + '');
-    myHealth.setAttribute('id', 'my-health');
-    canvas.appendChild(myHealth);
+    removeIfExists('my-health');
+    canvas.appendChild(writeText(state.health.me, 10, RenderConstants.cH - 20, 'my-health'));
   }
   
   if (state.health.op !== prev.health.op) {
-    const prevOpHealth = document.getElementById('op-health');
-    if (prevOpHealth) {
-      prevOpHealth.parentNode.removeChild(prevOpHealth);
-    }
-    
-    const opHealth = createSVGElement('text');
-    opHealth.textContent = state.health.op + '';
-    opHealth.setAttribute('x', '10');
-    opHealth.setAttribute('y', 20 + '');
-    opHealth.setAttribute('id', 'op-health');
-    canvas.appendChild(opHealth);
+    removeIfExists('op-health');
+    canvas.appendChild(writeText(state.health.op, 10, 20, 'op-health'));
   }
   
   if (prev.opponentCards !== state.opponentCards) {
     
     for (let i = 0; i < prev.opponentCards; i++) {
-      const prevOpHandCard = document.getElementById('card-back-op-hand-' + i);
-      prevOpHandCard.parentNode.removeChild(prevOpHandCard);
+      removeIfExists('card-back-op-hand-' + i);
     }
-    
     for (let i = 0; i < state.opponentCards; i++) {
       canvas.appendChild(drawCardBack(
         'op-hand-' + i,
@@ -108,24 +89,11 @@ export function renderState(state: LocalState, { socket, game_id, socket_id }: R
         RenderConstants.opYPos,
       ));
     }
+
   }
   
   if (state.myHand.length !== prev.myHand.length) {
-  
-    for (let i = 0; i < prev.myHand.length; i++) {
-      const prevOpHandCard = document.getElementById('card-face-my-hand-' + i);
-      prevOpHandCard.parentNode.removeChild(prevOpHandCard);
-    }
-    
-    state.myHand.forEach((card_index: number, i: number) => {
-      canvas.appendChild(drawCardFace(
-        card_index,
-        'my-hand-' + i,
-        RenderConstants.cardIndent + (i * RenderConstants.cardWidth) + (i * RenderConstants.cardSpacing),
-        RenderConstants.myYPos,
-      ));
-    });
-    
+    drawMyHand(canvas, state.myHand, prev.myHand.length);
   }
   
   if (state.phase === 'select') {
@@ -134,42 +102,34 @@ export function renderState(state: LocalState, { socket, game_id, socket_id }: R
       if (state.selected.op) {
         canvas.appendChild(drawCardBack(
           'op-selected',
-          (RenderConstants.cW / 2) - (RenderConstants.cardWidth),
-          (RenderConstants.opYPos * 2) + RenderConstants.cardHeight,
+          (RenderConstants.cW / 2) - ((3 / 2) * RenderConstants.cardWidth),
+          RenderConstants.opYPos + RenderConstants.cardHeight,
         ));
       } else {
-        const prevOpSelected = document.getElementById('card-back-op-selected');
-        if (prevOpSelected) {
-          prevOpSelected.parentNode.removeChild(prevOpSelected);
-        }
+        removeIfExists('card-back-op-selected');
       }
     }
   
     if (state.selected.me !== prev.selected.me) {
-      const prevMeSelected = document.getElementById('card-face-my-selected');
-      if (prevMeSelected) {
-        prevMeSelected.parentNode.removeChild(prevMeSelected);
-      }
+
+      drawMyHand(canvas, state.myHand, prev.myHand.length);
+
+      removeIfExists('card-face-me-selected');
       if (state.selected.me !== null) {
         canvas.appendChild(drawCardFace(
           state.selected.me,
-          'my-selected',
-          (RenderConstants.cW / 2) + (RenderConstants.cardWidth),
-          RenderConstants.myYPos - RenderConstants.opYPos - RenderConstants.cardHeight,
+          'me-selected',
+          (RenderConstants.cW / 2) + ((3 / 2) * RenderConstants.cardWidth),
+          RenderConstants.myYPos - RenderConstants.cardHeight,
         ));
       }
+
     }
     
   } else {
     // remove selected cards when phase ends
-    const prevOpSelected = document.getElementById('card-back-op-selected');
-    if (prevOpSelected) {
-      prevOpSelected.parentNode.removeChild(prevOpSelected);
-    }
-    const prevMeSelected = document.getElementById('card-face-my-selected');
-    if (prevMeSelected) {
-      prevMeSelected.parentNode.removeChild(prevMeSelected);
-    }
+    removeIfExists('card-back-op-selected');
+    removeIfExists('card-face-me-selected');
   }
   
   if (state.phase === 'compare') {
@@ -184,34 +144,27 @@ export function renderState(state: LocalState, { socket, game_id, socket_id }: R
           canvas.appendChild(drawCardFace(
             thisOpPlayed,
             'op-played',
-            (RenderConstants.cW / 2) - (RenderConstants.cardWidth),
-            (RenderConstants.opYPos * 2) + RenderConstants.cardHeight,
+            (RenderConstants.cW / 2) - ((3 / 2) * RenderConstants.cardWidth),
+            RenderConstants.opYPos + RenderConstants.cardHeight,
           ));
         } else {
-          const prevOpPlayedE = document.getElementById('card-face-op-played');
-          if (prevOpPlayedE) {
-            prevOpPlayedE.parentNode.removeChild(prevOpPlayedE);
-          }
+          removeIfExists('card-face-op-played');
         }
       }
       
       const thisMePlayed = state.played.length ? state.played[state.played.length - 1].me : null;
       const prevMePlayed = prev.played.length ? prev.played[prev.played.length - 1].me : null;
-    
+
       if (thisMePlayed !== prevMePlayed) {
         if (thisMePlayed !== null) {
-          console.log(state.played);
           canvas.appendChild(drawCardFace(
             thisMePlayed,
-            'my-played',
-            (RenderConstants.cW / 2) + (RenderConstants.cardWidth),
-            RenderConstants.myYPos - RenderConstants.opYPos - RenderConstants.cardHeight,
+            'me-played',
+            (RenderConstants.cW / 2) + ((3 / 2) * RenderConstants.cardWidth),
+            RenderConstants.myYPos - RenderConstants.cardHeight,
           ));
         } else {
-          const prevMePlayedE = document.getElementById('card-face-my-played');
-          if (prevMePlayedE) {
-            prevMePlayedE.parentNode.removeChild(prevMePlayedE);
-          }
+          removeIfExists('card-face-me-played');
         }
       }
   
@@ -219,14 +172,22 @@ export function renderState(state: LocalState, { socket, game_id, socket_id }: R
   
   } else {
     // remove played cards when phase ends
-    const prevMePlayed = document.getElementById('card-face-my-played');
-    if (prevMePlayed) {
-      prevMePlayed.parentNode.removeChild(prevMePlayed);
-    }
-    const prevOpPlayed = document.getElementById('card-face-op-played');
-    if (prevOpPlayed) {
-      prevOpPlayed.parentNode.removeChild(prevOpPlayed);
-    }
+    removeIfExists('card-face-me-played');
+    removeIfExists('card-face-op-played');
+  }
+
+  if (state.phase === 'roundOver' && prev.phase !== 'roundOver') {
+    canvas.appendChild(
+      writeText('KO!', RenderConstants.cW / 2, RenderConstants.cH / 2, 'ko-text')
+    );
+  } else if (state.phase !== 'roundOver' && prev.phase === 'roundOver') {
+    removeIfExists('ko-text');
+  }
+
+  if (state.phase === 'gameOver' && prev.phase !== 'gameOver') {
+    canvas.appendChild(
+      writeText('Game Over!', RenderConstants.cW / 2, RenderConstants.cH / 2, 'ko-text')
+    );
   }
   
   socket.emit('input', {

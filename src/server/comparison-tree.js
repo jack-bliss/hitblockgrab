@@ -68,15 +68,15 @@ const winner = (p0, p1) => {
 
 const result = (p0, p1) => {
 
-  const winner = winner(p0, p1);
+  const w = winner(p0, p1);
   const resultMap = {};
   const damage = {};
   const cardOf = { p0, p1 };
   // first pass to establish who won and determine base damage
   P.forEach((p) => {
-    if (winner === p) {
+    if (w === p) {
       resultMap[p] = 'win';
-    } else if (winner === 'tie') {
+    } else if (w === 'tie') {
       resultMap[p] = 'tie';
     } else {
       resultMap[p] = 'lose';
@@ -97,7 +97,7 @@ const result = (p0, p1) => {
       damage[p] = 0;
     }
     // blocking a hit gains advantage on win
-    if (cardOf[p].type === 'block' && cardOf[otherP(p)].type === 'hit' && winner === p) {
+    if (cardOf[p].type === 'block' && cardOf[otherP(p)].type === 'hit' && w === p) {
       advantage = p;
     }
   });

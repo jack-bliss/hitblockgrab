@@ -1,6 +1,9 @@
 module.exports = {
+  // meta
+  FPS: 20,
+
   // in game constants
-  START_HEALTH: 10,
+  START_HEALTH: 5,
 
   // round duration
   SELECT_TIME: 3,
@@ -10,4 +13,4 @@ module.exports = {
 
   // rounds needed to win
   ROUNDS_TO_WIN: 3,
-}
+};

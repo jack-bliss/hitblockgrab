@@ -2,7 +2,7 @@ export interface GameFoundResponse {
   players: number;
   game_id: number;
   socket_id: string;
-};
+}
 
 export function findGame(socket: any): Promise<GameFoundResponse> {
   socket.emit('find_game', { });

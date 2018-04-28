@@ -6,7 +6,8 @@ const otherP = ComparisonTree.otherP;
 
 const P = ['p0', 'p1'];
 
-module.exports = function (prev, input, fps) {
+module.exports = function (prev, input) {
+  const fps = RuleConstants.FPS;
   let next = Object.assign({}, prev);
   next.phase.counter++;
   if (next.phase.id === 'start') {
@@ -17,13 +18,11 @@ module.exports = function (prev, input, fps) {
   } else if (next.phase.id === 'select') {
     P.forEach(p => {
       if (input[p].type === 'my_card_clicked' && next.cardsInHand[p].indexOf(input[p].data) > -1) {
-        if (next.selected[p]) {
+        if (next.selected[p] !== null) {
           next.cardsInHand[p].push(next.selected[p]);
         }
-        console.log(p, 'selected card', input[p].data);
         next.selected[p] = input[p].data;
         next.cardsInHand[p] = next.cardsInHand[p].filter(c => c !== input[p].data);
-        console.log('new hand', next.cardsInHand[p]);
       }
     });
     if (next.phase.counter >= RuleConstants.SELECT_TIME * fps) {
