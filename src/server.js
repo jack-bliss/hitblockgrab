@@ -84,6 +84,8 @@ server.get('/', (req, res) => {
 
 server.get('*.*', express.static(DIST));
 
-http.listen(4040, '0.0.0.0', () => {
-  console.log('hitblockgrab up on 4040');
+const PORT = process.env.PORT || 4040;
+
+http.listen(PORT, '0.0.0.0', () => {
+  console.log('hitblockgrab up on ' + PORT);
 });
