@@ -50,7 +50,7 @@ module.exports = function (prev, input) {
       P.forEach(p => {
         // IMPLEMENT ADVANTAGE HERE:
         if (next.advantage === p) {
-          next.cardsInHand[p] = [4, 2, 5];
+          next.cardsInHand[p] = [4, 5, 6];
         } else {
           next.cardsInHand[p] = [1, 2, 3];
         }

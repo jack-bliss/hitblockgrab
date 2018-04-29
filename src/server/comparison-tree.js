@@ -1,6 +1,6 @@
 const BeatsMap = {
   'hit': ['grab', 'special'],
-  'block': ['hit', 'special'],
+  'block': ['hit'],
   'grab': ['block', 'special'],
   'special': [],
 };
@@ -83,6 +83,10 @@ const result = (p0, p1) => {
     }
     // damage is looked up by map
     damage[otherP(p)] = DamageMap[cardOf[p].type][resultMap[p]];
+    // parry cards deal 1 damage
+    if (hasTag(cardOf[p], 'parry')) {
+      damage[otherP(p)] = 1;
+    }
     // heavy cards do double damage
     if (hasTag(cardOf[p], 'heavy')) {
       damage[otherP(p)] = 2 * damage[otherP(p)];
@@ -96,8 +100,8 @@ const result = (p0, p1) => {
     if (hasTag(cardOf[p], 'armour')) {
       damage[p] = 0;
     }
-    // blocking a hit gains advantage on win
-    if (cardOf[p].type === 'block' && cardOf[otherP(p)].type === 'hit' && w === p) {
+    // winning with a block grants advantage
+    if (cardOf[p].type === 'block' && w === p) {
       advantage = p;
     }
   });

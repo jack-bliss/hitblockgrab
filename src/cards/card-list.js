@@ -20,13 +20,18 @@ module.exports = [
     tags: [],
   },
   {
-    name: 'Rapid Jab',
+    name: 'Heavy',
     type: 'hit',
-    tags: ['clashBreak'],
+    tags: ['heavy'],
   },
   {
-    name: 'Grapple',
+    name: 'Parry',
+    type: 'block',
+    tags: ['parry'],
+  },
+  {
+    name: 'Clash Break',
     type: 'grab',
     tags: ['clashBreak'],
-  }
+  },
 ];

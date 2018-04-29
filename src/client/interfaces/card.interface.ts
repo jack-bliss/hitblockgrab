@@ -15,4 +15,5 @@ export enum CardTag {
   // change damage dealt
   ARMOUR = 'armour', // takes no damage
   HEAVY = 'heavy', // deals double damage
+  PARRY = 'parry', // deals 1 damage (on block type cards)
 }

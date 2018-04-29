@@ -28,7 +28,9 @@ io.on('connection', (socket) => {
       if (g.players.indexOf(mySocket) > -1) {
         clearInterval(g.loop);
         opp = g.players.filter(sid => sid !== socket.id);
-        io.sockets.connected[opp].emit('opponent_left');
+        if (io.sockets.connected[opp]) {
+          io.sockets.connected[opp].emit('opponent_left');
+        }
         games.splice(i, 1);
         i--;
       }
