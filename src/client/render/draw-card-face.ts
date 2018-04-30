@@ -27,6 +27,10 @@ export function drawCardFace(card_id: number, id: string, x: number, y: number):
   text.setAttribute('x', RenderConstants.cardNameX + '');
   text.setAttribute('y', RenderConstants.cardNameY + '');
   
+  if (card.tags.length) {
+    
+  }
+  
   g.appendChild(rect);
   g.appendChild(text);
   

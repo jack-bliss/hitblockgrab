@@ -1,6 +1,6 @@
 const BeatsMap = {
   'hit': ['grab', 'special'],
-  'block': ['hit', 'special'],
+  'block': ['hit'],
   'grab': ['block', 'special'],
   'special': [],
 };
@@ -36,7 +36,7 @@ const hasTag = (card, tag) => card.tags.indexOf('tag') > -1;
 // returns the id of the winning player
 const winner = (p0, p1) => {
   const cardOf = { p0, p1 };
-  let w;
+  let w, p0beatsp1, p1beatsp0;
   if (p0.type === p1.type) {
     // round is a tie, unless one player played a clashBreak
     w = 'tie';
@@ -48,7 +48,15 @@ const winner = (p0, p1) => {
   } else {
     // round is won by the person who won the RPS,
     // unless one player played a feint and the other played a block
-    w = BeatsMap[p0.type].indexOf(p1.type) > -1 ? 'p0' : 'p1';
+    p0beatsp1 = BeatsMap[p0.type].indexOf(p1.type) > -1;
+    p1beatsp0 = BeatsMap[p1.type].indexOf(p0.type) > -1;
+    if (p0beatsp1) {
+      w = 'p0';
+    } else if (p1beatsp0) {
+      w = 'p1';
+    } else {
+      w = 'tie';
+    }
     P.forEach(p => {
       if (hasTag(cardOf[p], 'feint') && !hasTag(cardOf[otherP(p)], 'feint')) {
         if (cardOf[otherP(p)].type === 'block') {
