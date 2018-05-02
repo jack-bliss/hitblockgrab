@@ -80,7 +80,8 @@ const result = (p0, p1) => {
   const resultMap = {};
   const damage = {};
   const cardOf = { p0, p1 };
-  // first pass to establish who won and determine base damage
+  let advantage = 'none';
+  // check each player on a first pass
   P.forEach((p) => {
     if (w === p) {
       resultMap[p] = 'win';
@@ -91,26 +92,24 @@ const result = (p0, p1) => {
     }
     // damage is looked up by map
     damage[otherP(p)] = DamageMap[cardOf[p].type][resultMap[p]];
-    // parry cards deal 1 damage
-    if (hasTag(cardOf[p], 'parry')) {
+    // parry cards deal 1 damage on a win
+    if (hasTag(cardOf[p], 'parry') && w === p) {
       damage[otherP(p)] = 1;
     }
-    // heavy cards do double damage
+    // heavy cards do double damage regardless of outcome
     if (hasTag(cardOf[p], 'heavy')) {
       damage[otherP(p)] = 2 * damage[otherP(p)];
-    }
-  });
-
-  // second pass to resolve tag effects and advantage
-  let advantage = 'none';
-  P.forEach(p => {
-    // armoured cards take no damage
-    if (hasTag(cardOf[p], 'armour')) {
-      damage[p] = 0;
     }
     // winning with a block grants advantage
     if (cardOf[p].type === 'block' && w === p) {
       advantage = p;
+    }
+  });
+  // initial damage/advantage set, now correct
+  P.forEach(p => {
+    // armour cards neutralise damage
+    if (hasTag(cardOf[p], 'armour')) {
+      damage[p] = 0;
     }
   });
 
