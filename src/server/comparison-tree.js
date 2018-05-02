@@ -23,7 +23,7 @@ const DamageMap = {
     'lose': 0,
   },
   'special': {
-    'win': 1,
+    'win': 0,
     'tie': 0,
     'lose': 0,
   }

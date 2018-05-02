@@ -34,4 +34,9 @@ module.exports = [
     type: 'grab',
     tags: ['clashBreak'],
   },
+  {
+    name: 'Twin Kick',
+    type: 'hit',
+    tags: ['clashBreak'],
+  },
 ];
